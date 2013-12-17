@@ -71,19 +71,11 @@ function Game:init()
 end
 
 function Game:loadImages()
---TODO: Y u no work!!!!!?!?!?!?
---	for k,v in ipairs(Globals.Colors) do
---		print("v: " .. v)
---		self.cubes[v] = love.graphics.newImage("images/" .. v .. ".png")
---	end	
-	self.cubes[1] = love.graphics.newImage("images/Gray.png")
-	self.cubes[2] = love.graphics.newImage("images/Blue.png")
-	self.cubes[3] = love.graphics.newImage("images/Green.png")
-	self.cubes[4] = love.graphics.newImage("images/Orange.png")
-	self.cubes[5] = love.graphics.newImage("images/Red.png")
-	self.cubes[6] = love.graphics.newImage("images/Violet.png")
-	self.cubes[7] = love.graphics.newImage("images/Yellow.png")
-	self.cubes[8] = love.graphics.newImage("images/Cyan.png")
+	for k,v in ipairs(Globals.Colors) do
+		print(k, v)
+		local path = "images/" .. v .. ".png"
+		self.cubes[k] = love.graphics.newImage(path)
+	end	
 end
 
 function Game:hasReachedDown()

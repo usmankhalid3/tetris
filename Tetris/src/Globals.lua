@@ -14,13 +14,13 @@ Globals = {
 	BOARD_OFFSET_Y = 100,
 	
 	Colors = {
-		Gray = "Gray",
-		Red = "Red", 
-		Orange = "Orange", 
-		Yellow = "Yellow", 
-		Green = "Green", 
-		Cyan = "Cyan", 
-		Blue = "Blue", 
-		Violet = "Violet"
+		"Gray",
+		"Red", 
+		"Orange", 
+		"Yellow", 
+		"Green", 
+		"Cyan", 
+		"Blue",
+		"Violet"
 	}
 }

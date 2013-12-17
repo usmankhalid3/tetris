@@ -58,11 +58,25 @@ Game = {
 	keyTimerUp = 0,
 	keyTimerDown = 0,
 	score = 0,
-	cubes = {}
 }
 
-function Game:init()
+function Game:resetState()
 	math.randomseed(os.time())
+	self.board = {}
+	self.tetrominos = {}
+	self.cubes = {}
+	self.gameOver = false
+	self.gamePaused = false
+	self.descentTimer = 0
+	self.keyTimerLeft = 0
+	self.keyTimerRight = 0
+	self.keyTimerUp = 0
+	self.keyTimerDown = 0
+	self.score = 0
+end
+
+function Game:init()
+	Game:resetState()
 	Game:loadImages()
 	self.board = Game:createBoard()
 	Game:createTetrominos()
@@ -72,7 +86,6 @@ end
 
 function Game:loadImages()
 	for k,v in ipairs(Globals.Colors) do
-		print(k, v)
 		local path = "images/" .. v .. ".png"
 		self.cubes[k] = love.graphics.newImage(path)
 	end	
@@ -173,7 +186,7 @@ function Game:addTetroToBoard()
 	self.activeTetromino = self.nextTetromino
 	
 	if Game:checkLegal(self.activeTetromino) == false then
-		self.gameOver = true
+		Game:endGame()
 	end
 	
 	self.nextTetromino = Game:newTetromino()
@@ -583,4 +596,21 @@ function Game:onKeyUp(key)
 	if key == "p" then
 		Game:pauseGame()
 	end
+end
+
+function Game:getScore()
+	return self.score
+end
+
+function Game:isOver()
+	return self.gameOver
+end
+
+function Game:isPaused()
+	return self.gamePaused
+end
+
+function Game:endGame()
+	self.gameOver = true
+	Leaderboard:addScore(Game:getScore())
 end

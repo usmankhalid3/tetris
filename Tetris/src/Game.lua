@@ -196,7 +196,7 @@ end
 
 function Game:rotateTetromino()
 	local tetro = self.activeTetromino
-	
+	-- No need to rotate the O-shape
 	if tetro["type"] == self.TetrominoType.O then
 		return
 	end
@@ -204,7 +204,7 @@ function Game:rotateTetromino()
 	local newTetro = {}
 	newTetro["tetro"] = {}
 	newTetro["color"] = tetro["color"]
-	newTetro["rotation"] = (tetro["rotation"] + 1) % 5
+	newTetro["rotation"] = tetro["rotation"] % 4 + 1
 	
 	if Game:isOfTypeI(tetro) or Game:isOfTypeS(tetro) or Game:isOfTypeZ(tetro) then
 		if tetro["rotation"] == 1 or tetro["rotation"] == 3 then
@@ -230,8 +230,8 @@ function Game:rotateTetromino()
 		end			
 	end
 	
-	newTetro["height"] = tetro["height"]
-	newTetro["width"] = tetro["width"]
+	newTetro["height"] = tetro["width"]
+	newTetro["width"] = tetro["height"]
 	
 	for i = 1, newTetro["width"] do
 		newTetro["tetro"][i] = {}
@@ -562,7 +562,7 @@ function Game:renderTetromino(tetroToRender)
 	for i = 1, width do
 		for j = 1, height do
 			if tetro[i][j] == true then
-	 			love.graphics.draw(self.cubes[color], Globals.TILE_SIZE * (x+i-2), Globals.TILE_SIZE * (y+j-2))
+	 			love.graphics.draw(self.cubes[color], Globals.TILE_SIZE * (x+i-2) + 200, Globals.TILE_SIZE * (y+j-2) + 50)
 	 		end
 	 	end
 	 end
@@ -571,7 +571,7 @@ end
 function Game:render()
 	for i = 1, Globals.BOARD_WIDTH do
 		for j = 1, Globals.BOARD_HEIGHT do
-			love.graphics.draw(self.cubes[self.board[i][j]], Globals.TILE_SIZE * (i - 1), Globals.TILE_SIZE * (j - 1))
+			love.graphics.draw(self.cubes[self.board[i][j]], Globals.TILE_SIZE * (i - 1) + 200, Globals.TILE_SIZE * (j - 1) + 50)
 		end
 	end
 	

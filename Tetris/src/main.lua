@@ -3,6 +3,7 @@ require("Game")
 require("Globals")
 
 function love.load()
+	System:init()
 	Game:init()
 end
 

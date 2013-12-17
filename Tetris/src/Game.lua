@@ -61,12 +61,13 @@ Game = {
 	keyTimerRight = 0,
 	keyTimerUp = 0,
 	keyTimerDown = 0,
+	score = 0
 }
 
 function Game:init()
 	math.randomseed(os.time())
 	Game:loadImages()
-	Game:createBoard()
+	self.board = Game:createBoard()
 	Game:createTetrominos()
 	self.activeTetromino = Game:newTetromino()
 	self.nextTetromino = Game:newTetromino()
@@ -152,8 +153,7 @@ function Game:hasReachedRight()
 	return false
 end
 
-
-function Game:checkTetro(tetro)
+function Game:checkLegal(tetro)
 	for i = 1, tetro["width"] do
 		for j = 1, tetro["height"] do
 			if tetro["tetro"][i][j] then
@@ -167,10 +167,12 @@ function Game:checkTetro(tetro)
 			end
 		end
 	end
+	return true
 end
 
 function Game:addTetroToBoard()
 	local tetro = self.activeTetromino
+	
 	for i = 1, tetro["width"] do
 		for j = 1, tetro["height"] do
 			if tetro["tetro"][i][j] then
@@ -180,6 +182,11 @@ function Game:addTetroToBoard()
 	end
 	
 	self.activeTetromino = self.nextTetromino
+	
+	if Game:checkLegal(self.activeTetromino) == false then
+		self.gameOver = true
+	end
+	
 	self.nextTetromino = Game:newTetromino()
 end
 
@@ -236,14 +243,50 @@ function Game:rotateTetromino()
 		end
 	end
 	
-	self.activeTetromino = newTetro
+	if Game:checkLegal(newTetro) == true then
+		self.activeTetromino = newTetro
+	end
 	 
+end
+
+function Game:removeCompletedRows()
+	local completedRows = {}
+	local linesCompleted = 0
+	local newBoard = Game:createBoard()
+	
+	for j = Globals.BOARD_HEIGHT, 1, -1 do
+		completedRows[j] = true
+		for i = 1, Globals.BOARD_WIDTH do
+			if self.board[i][j] == 1 then
+				completedRows[j] = false
+				break
+			end
+		end
+	end
+	
+	for j = Globals.BOARD_HEIGHT, 1, -1 do
+		if completedRows[j] then
+			linesCompleted = linesCompleted + 1
+		end
+		for i = 1, Globals.BOARD_WIDTH do
+			if j - linesCompleted > 0 then
+				newBoard[i][j] = self.board[i][j - linesCompleted]
+			end
+		end
+	end
+	
+	if linesCompleted > 0 then
+		self.score = self.score + linesCompleted
+	end
+	self.board = newBoard
 end
 
 function Game:update(dt)
 	if self.gamePaused == true or self.gameOver == true then
 		return
 	end
+	
+	Game:removeCompletedRows()
 	
 	local tetro = self.activeTetromino
 	
@@ -304,12 +347,14 @@ function Game:update(dt)
 end
 
 function Game:createBoard()
+	local board = {}
 	for i = 1, Globals.BOARD_WIDTH do
-		self.board[i] = {}
+		board[i] = {}
 		for j = 1, Globals.BOARD_HEIGHT do
-			self.board[i][j] = 1
+			board[i][j] = 1
 		end
 	end
+	return board
 end
 
 function Game:setMatrix(matrix, height, width, value)
@@ -521,10 +566,6 @@ function Game:renderTetromino(tetroToRender)
 	 		end
 	 	end
 	 end
-end
-
-function addTetroToBoard()
-
 end
 
 function Game:render()

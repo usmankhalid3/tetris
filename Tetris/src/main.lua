@@ -15,9 +15,9 @@ function love.draw()
 end
 
 function love.keypressed(key, unicode)
-    System:onKeyDown(key)
+    Game:onKeyDown(key)
 end
 
 function love.keyreleased(key)
-    System:onKeyUp(key)
+    Game:onKeyUp(key)
 end

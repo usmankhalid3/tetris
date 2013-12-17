@@ -88,6 +88,37 @@ function Game:hasReachedDown()
 	if tetro["row"] + tetro["height"] > Globals.BOARD_HEIGHT then
 		return true
 	end
+	
+	for i = 1, tetro["width"] do
+		for j = 1, tetro["height"] do
+			if tetro["tetro"][i][j] then
+				if self.board[tetro["col"]+i-1] ~= nil then
+					if self.board[tetro["col"]+i-1][tetro["row"]+j] ~= nil then
+						if self.board[tetro["col"]+i-1][tetro["row"]+j] ~= 1 then
+							return true
+						end
+					end
+				end
+			end
+		end
+	end
+	return false
+end
+
+function Game:checkTetro(tetro)
+	for i = 1, tetro["width"] do
+		for j = 1, tetro["height"] do
+			if tetro["tetro"][i][j] then
+				if self.board[tetro["col"]+i-1] == nil then
+					return false
+				elseif self.board[tetro["col"]+i-1][tetro["row"]+j-1] == nil then
+					return false
+				elseif self.board[tetro["col"]+i-1][tetro["row"]+j-1] ~= 1 then
+					return false
+				end
+			end
+		end
+	end
 end
 
 function Game:addTetroToBoard()
@@ -104,8 +135,12 @@ function Game:addTetroToBoard()
 	self.nextTetromino = Game:newTetromino()
 end
 
+function Game:descendTetromino()
+	self.activeTetromino["row"] = self.activeTetromino["row"] + 1
+end
+
 function Game:update(dt)
-	if self.gameOver == true then
+	if self.gamePaused == true or self.gameOver == true then
 		return
 	end
 	
@@ -119,7 +154,7 @@ function Game:update(dt)
 		if Game:hasReachedDown() then
 			Game:addTetroToBoard()
 		else
-			self.activeTetromino["row"] = self.activeTetromino["row"] + 1
+			Game:descendTetromino()
 		end
 	end
 end
@@ -327,4 +362,22 @@ function Game:render()
 	end
 	
 	Game:renderTetromino(self.activeTetromino)
+end
+
+function Game:onKeyDown(key)
+
+end
+
+function Game:pauseGame()
+	if self.gamePaused == true then
+		self.gamePaused = false
+	else
+		self.gamePaused = true
+	end
+end
+
+function Game:onKeyUp(key)
+	if key == " " then
+		Game:pauseGame()
+	end
 end

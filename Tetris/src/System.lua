@@ -23,11 +23,3 @@ end
 function System:renderGame()
 	
 end
-
-function System:onKeyDown()
-
-end
-
-function System:onKeyUp()
-
-end

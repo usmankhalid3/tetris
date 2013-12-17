@@ -57,6 +57,10 @@ Game = {
 	gameOver = false,
 	gamePaused = false,
 	descentTimer = 0,
+	keyTimerLeft = 0,
+	keyTimerRight = 0,
+	keyTimerUp = 0,
+	keyTimerDown = 0,
 }
 
 function Game:init()
@@ -81,6 +85,7 @@ function Game:loadImages()
 	self.cubes[5] = love.graphics.newImage("images/Red.png")
 	self.cubes[6] = love.graphics.newImage("images/Violet.png")
 	self.cubes[7] = love.graphics.newImage("images/Yellow.png")
+	self.cubes[8] = love.graphics.newImage("images/Cyan.png")
 end
 
 function Game:hasReachedDown()
@@ -104,6 +109,49 @@ function Game:hasReachedDown()
 	end
 	return false
 end
+
+function Game:hasReachedLeft()
+	local tetro = self.activeTetromino
+	if tetro["col"] < 2 then
+		return true
+	end
+	for i = 1, tetro["width"] do
+		for j = 1, tetro["height"] do
+			if tetro["tetro"][i][j] then
+				if self.board[tetro["col"]+i-2][tetro["row"]+j-1] ~= nil then
+					if self.board[tetro["col"]+i-2][tetro["row"]+j-1] ~= nil then
+						if self.board[tetro["col"]+i-2][tetro["row"]+j-i] ~= 1 then
+							return true
+						end
+					end
+				end
+			end
+		end
+	end
+	return false
+end
+
+function Game:hasReachedRight()
+	local tetro = self.activeTetromino
+	if tetro["col"] + tetro["width"] > Globals.BOARD_WIDTH then
+		return true
+	end
+	for i = 1, tetro["width"] do
+		for j = 1, tetro["height"] do
+			if tetro["tetro"][i][j] then
+				if self.board[tetro["col"]+i] ~= nil then
+					if self.board[tetro["col"]+i][tetro["row"]+j-1] ~= nil then
+						if self.board[tetro["col"]+i][tetro["row"]+j-1] ~= 1 then
+							return true
+						end
+					end
+				end
+			end
+		end
+	end
+	return false
+end
+
 
 function Game:checkTetro(tetro)
 	for i = 1, tetro["width"] do
@@ -139,15 +187,111 @@ function Game:descendTetromino()
 	self.activeTetromino["row"] = self.activeTetromino["row"] + 1
 end
 
+function Game:rotateTetromino()
+	local tetro = self.activeTetromino
+	
+	if tetro["type"] == self.TetrominoType.O then
+		return
+	end
+	
+	local newTetro = {}
+	newTetro["tetro"] = {}
+	newTetro["color"] = tetro["color"]
+	newTetro["rotation"] = (tetro["rotation"] + 1) % 5
+	
+	if Game:isOfTypeI(tetro) or Game:isOfTypeS(tetro) or Game:isOfTypeZ(tetro) then
+		if tetro["rotation"] == 1 or tetro["rotation"] == 3 then
+			newTetro["col"] = tetro["col"] - math.floor((tetro["height"] - tetro["width"]) / 2)
+			newTetro["row"] = tetro["row"] - math.ceil((tetro["width"] - tetro["height"]) / 2)
+		elseif tetro["rotation"] == 2 or tetro["rotation"] == 4 then
+			newTetro["col"] = tetro["col"] - math.ceil((tetro["height"] - tetro["width"]) / 2)
+			newTetro["row"] = tetro["row"] - math.floor((tetro["width"] - tetro["height"]) / 2)
+		end
+	else
+		if tetro["rotation"] == 1 then
+			newTetro["col"] = tetro["col"] - math.floor((tetro["height"] - tetro["width"]) / 2)
+			newTetro["row"] = tetro["row"] - math.floor((tetro["width"] - tetro["height"]) / 2)
+		elseif tetro["rotation"] == 2 then
+			newTetro["col"] = tetro["col"] - math.ceil((tetro["height"] - tetro["width"]) / 2)
+			newTetro["row"] = tetro["row"] - math.floor((tetro["width"] - tetro["height"]) / 2)
+		elseif tetro["rotation"] == 3 then
+			newTetro["col"] = tetro["col"] - math.ceil((tetro["height"] - tetro["width"]) / 2)
+			newTetro["row"] = tetro["row"] - math.ceil((tetro["width"] - tetro["height"]) / 2)
+		elseif tetro["rotation"] == 4 then
+			newTetro["col"] = tetro["col"] - math.floor((tetro["height"] - tetro["width"]) / 2)
+			newTetro["row"] = tetro["row"] - math.ceil((tetro["width"] - tetro["height"]) / 2)
+		end			
+	end
+	
+	newTetro["height"] = tetro["height"]
+	newTetro["width"] = tetro["width"]
+	
+	for i = 1, newTetro["width"] do
+		newTetro["tetro"][i] = {}
+	end
+	
+	for i = 1, tetro["width"] do
+		for j = 1, tetro["height"] do
+			newTetro["tetro"][tetro["height"]-j+1][i] = tetro["tetro"][i][j]
+		end
+	end
+	
+	self.activeTetromino = newTetro
+	 
+end
+
 function Game:update(dt)
 	if self.gamePaused == true or self.gameOver == true then
 		return
 	end
 	
-	if self.activeTetromino == nil then
+	local tetro = self.activeTetromino
+	
+	if tetro == nil then
 		return
 	end
 	
+	self.keyTimerUp = self.keyTimerUp - dt
+	self.keyTimerDown = self.keyTimerDown - dt
+	self.keyTimerLeft = self.keyTimerLeft - dt
+	self.keyTimerRight = self.keyTimerRight - dt
+	
+	if self.keyTimerUp <= 0 then
+		if love.keyboard.isDown("up", " ") then
+			Game:rotateTetromino()
+			self.keyTimerUp = Globals.KEYPRESS_DELAY
+		end
+	end
+	
+		if self.keyTimerDown <= 0 then
+		if love.keyboard.isDown("down", "s") then
+			self.keyTimerDown = Globals.KEYPRESS_DELAY
+			if Game:hasReachedDown() then
+				Game:addTetroToBoard()
+			else
+				tetro["row"] = tetro["row"] + 1
+			end
+		end
+	end	
+	
+	if self.keyTimerLeft <= 0 then
+		if love.keyboard.isDown("left", "a") then
+			self.keyTimerLeft = Globals.KEYPRESS_DELAY
+			if Game:hasReachedLeft() == false then
+				tetro["col"] = tetro["col"] - 1
+			end
+		end
+	end
+	
+	if self.keyTimerRight <= 0 then
+		if love.keyboard.isDown("right", "d") then
+			self.keyTimerRight = Globals.KEYPRESS_DELAY
+			if Game:hasReachedRight() == false then
+				tetro["col"] = tetro["col"] + 1
+			end
+		end
+	end
+		
 	self.descentTimer = self.descentTimer - dt
 	if self.descentTimer <= 0 then
 		self.descentTimer = Globals.DESCENT_DELAY
@@ -271,6 +415,34 @@ function Game:createL(tetromino)
 	tetromino[3][2] = true
 end
 
+function Game:isOfTypeI(tetro)
+	return tetro["type"] == self.TetrominoType.I
+end
+
+function Game:isOfTypeO(tetro)
+	return tetro["type"] == self.TetrominoType.O
+end
+
+function Game:isOfTypeT(tetro)
+	return tetro["type"] == self.TetrominoType.T
+end
+
+function Game:isOfTypeS(tetro)
+	return tetro["type"] == self.TetrominoType.S
+end
+
+function Game:isOfTypeZ(tetro)
+	return tetro["type"] == self.TetrominoType.Z
+end
+
+function Game:isOfTypeJ(tetro)
+	return tetro["type"] == self.TetrominoType.J
+end
+
+function Game:isOfTypeL(tetro)
+	return tetro["type"] == self.TetrominoType.L
+end
+
 function Game:_debugPrintTetro(tetro)
 	for k = 1, 4 do
 		print(tostring(tetro[1][k]) .. "\t" .. tostring(tetro[2][k]) .. "\t"  .. tostring(tetro[3][k]) .. "\t"  .. tostring(tetro[4][k]))
@@ -282,13 +454,13 @@ function Game:newTetromino()
 	math.random()
 	math.random()
 	
-	local newPiece = math.random(1, Globals.TOTAL_TETROMINO_TYPES)
-	local newRow = 1
-	local newCol = Globals.BOARD_WIDTH / 2;
+	local type = math.random(1, Globals.TOTAL_TETROMINO_TYPES)
+	local row = 1
+	local col = Globals.BOARD_WIDTH / 2;
 	
 	local maxWidth = 1
 	local maxHeight = 1
-	local tetro = self.tetrominos[newPiece];
+	local tetro = self.tetrominos[type];
 	
 	--Game:_debugPrintTetro(tetro)
 	
@@ -315,13 +487,14 @@ function Game:newTetromino()
 	end
 	
 	local newTetromino = {
-		["tetro"] = self.tetrominos[newPiece],
-		["row"] = newRow,
-		["col"] = newCol,
+		["tetro"] = self.tetrominos[type],
+		["row"] = row,
+		["col"] = col,
 		["width"] = maxWidth,
 		["height"] = maxHeight,
-		["color"] = newPiece,
-		["rotation"] = 1
+		["color"] = type + 1,
+		["rotation"] = 1,
+		["type"] = type
 	}
 	
 	--print ("\n", newTetromino.height .. newTetromino.width)
@@ -377,7 +550,7 @@ function Game:pauseGame()
 end
 
 function Game:onKeyUp(key)
-	if key == " " then
+	if key == "p" then
 		Game:pauseGame()
 	end
 end

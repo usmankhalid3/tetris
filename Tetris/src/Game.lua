@@ -1,7 +1,3 @@
-require("Globals")
-
-cubes = {}
-
 Game = {
    TetrominoType = { 
         --      ....
@@ -61,7 +57,8 @@ Game = {
 	keyTimerRight = 0,
 	keyTimerUp = 0,
 	keyTimerDown = 0,
-	score = 0
+	score = 0,
+	cubes = {}
 }
 
 function Game:init()
@@ -562,7 +559,7 @@ function Game:renderTetromino(tetroToRender)
 	for i = 1, width do
 		for j = 1, height do
 			if tetro[i][j] == true then
-	 			love.graphics.draw(self.cubes[color], Globals.TILE_SIZE * (x+i-2) + 200, Globals.TILE_SIZE * (y+j-2) + 50)
+	 			love.graphics.draw(self.cubes[color], Globals.TILE_SIZE * (x+i-2) + Globals.BOARD_OFFSET_X, Globals.TILE_SIZE * (y+j-2) + Globals.BOARD_OFFSET_Y)
 	 		end
 	 	end
 	 end
@@ -571,7 +568,7 @@ end
 function Game:render()
 	for i = 1, Globals.BOARD_WIDTH do
 		for j = 1, Globals.BOARD_HEIGHT do
-			love.graphics.draw(self.cubes[self.board[i][j]], Globals.TILE_SIZE * (i - 1) + 200, Globals.TILE_SIZE * (j - 1) + 50)
+			love.graphics.draw(self.cubes[self.board[i][j]], Globals.TILE_SIZE * (i - 1) + Globals.BOARD_OFFSET_X, Globals.TILE_SIZE * (j - 1) + Globals.BOARD_OFFSET_Y)
 		end
 	end
 	

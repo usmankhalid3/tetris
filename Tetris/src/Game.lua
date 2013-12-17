@@ -54,13 +54,18 @@ Game = {
 	cubes = {},
 	activeTetromino,
 	nextTetromino,
+	gameOver = false,
+	gamePaused = false,
+	descentTimer = 0,
 }
 
 function Game:init()
+	math.randomseed(os.time())
 	Game:loadImages()
 	Game:createBoard()
 	Game:createTetrominos()
 	self.activeTetromino = Game:newTetromino()
+	self.nextTetromino = Game:newTetromino()
 end
 
 function Game:loadImages()
@@ -78,8 +83,45 @@ function Game:loadImages()
 	self.cubes[7] = love.graphics.newImage("images/Yellow.png")
 end
 
-function Game:update(dt)
+function Game:hasReachedDown()
+	local tetro = self.activeTetromino
+	if tetro["row"] + tetro["height"] > Globals.BOARD_HEIGHT then
+		return true
+	end
+end
 
+function Game:addTetroToBoard()
+	local tetro = self.activeTetromino
+	for i = 1, tetro["width"] do
+		for j = 1, tetro["height"] do
+			if tetro["tetro"][i][j] then
+				self.board[tetro["col"]+i-1][tetro["row"]+j-1] = tetro["color"]
+			end
+		end
+	end
+	
+	self.activeTetromino = self.nextTetromino
+	self.nextTetromino = Game:newTetromino()
+end
+
+function Game:update(dt)
+	if self.gameOver == true then
+		return
+	end
+	
+	if self.activeTetromino == nil then
+		return
+	end
+	
+	self.descentTimer = self.descentTimer - dt
+	if self.descentTimer <= 0 then
+		self.descentTimer = Globals.DESCENT_DELAY
+		if Game:hasReachedDown() then
+			Game:addTetroToBoard()
+		else
+			self.activeTetromino["row"] = self.activeTetromino["row"] + 1
+		end
+	end
 end
 
 function Game:createBoard()
@@ -213,7 +255,7 @@ function Game:newTetromino()
 	local maxHeight = 1
 	local tetro = self.tetrominos[newPiece];
 	
-	Game:_debugPrintTetro(tetro)
+	--Game:_debugPrintTetro(tetro)
 	
 	--TODO: IMPROVE THE FOLLOWING CODE TO GET MAXWIDTH & MAXHEIGHT
 	
@@ -243,16 +285,19 @@ function Game:newTetromino()
 		["col"] = newCol,
 		["width"] = maxWidth,
 		["height"] = maxHeight,
-		["color"] = 2,
+		["color"] = newPiece,
 		["rotation"] = 1
 	}
 	
-	print ("\n", newTetromino.height .. newTetromino.width)
+	--print ("\n", newTetromino.height .. newTetromino.width)
 	
 	return newTetromino
 end
 
-function Game:renderTetromino(tetroToRender) 
+function Game:renderTetromino(tetroToRender)
+	if tetroToRender == nil then
+		return
+	end
 	local tetro = tetroToRender["tetro"]
 	local x = tetroToRender["col"]
 	local y = tetroToRender["row"]

@@ -7,6 +7,7 @@ Globals = {
 	TILE_SIZE = 32,
 	TETROMINO_SIZE = 4,
 	TOTAL_TETROMINO_TYPES = 7,
+	DESCENT_DELAY = 0.05,
 	
 	Colors = {
 		Gray = "Gray",

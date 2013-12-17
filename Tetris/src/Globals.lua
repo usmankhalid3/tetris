@@ -14,7 +14,7 @@ Globals = {
 	BOARD_OFFSET_Y = 100,
 	
 	Colors = {
-		"Gray",
+		"Grey",
 		"Red", 
 		"Orange", 
 		"Yellow", 

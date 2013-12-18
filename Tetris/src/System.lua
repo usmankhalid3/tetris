@@ -27,13 +27,14 @@ end
 
 -- Shows the top X highest scores on the screen
 function System:showHighScores()
-	local y = 100
+	local y = 130
 	local scores = Leaderboard:getTopScores()
-	love.graphics.print("Top 5 Highest Scores", 250, 25)
+	love.graphics.print("GAME OVER!", 300, 20)
+	love.graphics.print("Top 5 Highest Scores", 250, 80)
 	love.graphics.print("Press spacebar to play again", 250, 350)
 	for rank, score in ipairs(scores) do
 		local scoreLabel = rank .. "           " .. score
-		love.graphics.print(scoreLabel, 300, y)
+		love.graphics.print(scoreLabel, 330, y)
 		y = y + 40	
 	end
 end

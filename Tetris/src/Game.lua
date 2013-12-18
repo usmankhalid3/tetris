@@ -601,11 +601,11 @@ function Game:getWorstTetromino()
 	local probabilities = {
 		[self.TetrominoType.I] = 50,
 		[self.TetrominoType.O] = 80,
-		[self.TetrominoType.T] = 120,
-		[self.TetrominoType.S] = 1000,
-		[self.TetrominoType.Z] = 1000,
-		[self.TetrominoType.J] = 250,
-		[self.TetrominoType.L] = 250,
+		[self.TetrominoType.T] = 250,
+		[self.TetrominoType.S] = 2000,
+		[self.TetrominoType.Z] = 2000,
+		[self.TetrominoType.J] = 400,
+		[self.TetrominoType.L] = 300,
 	}	
 	local selected = Utils:pickOne(probabilities)
 	return Game:newTetromino(selected)

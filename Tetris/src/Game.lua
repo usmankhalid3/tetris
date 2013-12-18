@@ -262,7 +262,7 @@ function Game:removeCompletedRows()
 	self.board = newBoard
 end
 
--- Called every tick (called from love.update method)
+-- Called every tick (from love.update method)
 function Game:update(dt)
 	if self.gamePaused == true or self.gameOver == true then
 		return
@@ -499,16 +499,12 @@ function Game:newTetromino(type)
 					maxHeight = j
 				end
 			end
-		end
-	end
-	
-	for i = 1, 4 do
-		for j = 1, 4 do
 			if tetro[j][i] == true then
 				if j > maxWidth then
 					maxWidth = j
 				end
 			end
+			
 		end
 	end
 	

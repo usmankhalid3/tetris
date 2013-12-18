@@ -3,17 +3,19 @@ require("Game")
 require("Globals")
 require("Leaderboard")
 require("Utils")
+--require("Tests")
 
 function startGame()
 	System:init()
 	Game:init()
 end
 
-function love.load()
+function love.load()	
+	love.graphics.setColor(255, 255, 255, 100)
 	love.filesystem.setIdentity("crazytetris")
 	local scoreData = nil
-	if love.filesystem.exists(Globals.GAMEDATA_PATH) then
-		scoreData = love.filesystem.read(Globals.GAMEDATA_PATH)
+	if love.filesystem.exists(Globals.Path.GAME_DATA) then
+		scoreData = love.filesystem.read(Globals.Path.GAME_DATA)
 	end
 	Leaderboard:init(scoreData)
 	startGame()
@@ -47,5 +49,5 @@ function love.keyreleased(key)
 end
 
 function love.quit()
-	love.filesystem.write(Globals.GAMEDATA_PATH,Leaderboard:scoreData());
+	love.filesystem.write(Globals.Path.GAME_DATA,Leaderboard:scoreData());
 end

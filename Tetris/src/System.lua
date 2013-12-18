@@ -1,5 +1,7 @@
+require("Globals")
+
 System = {
-	font = love.graphics.newFont("fonts/DimboRegular.ttf", 36)
+	font = love.graphics.newFont(Globals.Path.FONT, 36)
 }
 
 function System:setHeading()

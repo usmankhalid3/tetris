@@ -14,7 +14,6 @@ Globals = {
 	BOARD_OFFSET_X = 200,
 	BOARD_OFFSET_Y = 100,
 	LEADERBOARD_SIZE = 5,
-	GAMEDATA_PATH = "scores",
 	
 	Colors = {
 		"Grey",
@@ -25,5 +24,11 @@ Globals = {
 		"Cyan", 
 		"Blue",
 		"Violet"
+	},
+	
+	Path = {
+		IMAGES = "images/",
+		FONT = "fonts/DimboRegular.ttf",
+		GAME_DATA = "scores",
 	}
 }

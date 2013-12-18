@@ -80,13 +80,13 @@ function Game:init()
 	Game:loadImages()
 	self.board = Game:createBoard()
 	Game:createTetrominos()
-	self.activeTetromino = Game:newTetromino()
-	self.nextTetromino = Game:newTetromino()
+	self.activeTetromino = Game:getWorstTetromino()
+	self.nextTetromino = Game:getWorstTetromino()
 end
 
 function Game:loadImages()
 	for k,v in ipairs(Globals.Colors) do
-		local path = "images/" .. v .. ".png"
+		local path = Globals.Path.IMAGES .. v .. ".png"
 		self.cubes[k] = love.graphics.newImage(path)
 	end	
 end
@@ -189,7 +189,7 @@ function Game:addTetroToBoard()
 		Game:endGame()
 	end
 	
-	self.nextTetromino = Game:newTetromino()
+	self.nextTetromino = Game:getWorstTetromino()
 end
 
 function Game:descendTetromino()
@@ -496,12 +496,7 @@ function Game:_debugPrintTetro(tetro)
 	end 
 end
 
-function Game:newTetromino()
-	math.random()
-	math.random()
-	math.random()
-	
-	local type = math.random(1, Globals.TOTAL_TETROMINO_TYPES)
+function Game:newTetromino(type)
 	local row = 1
 	local col = Globals.BOARD_WIDTH / 2;
 	
@@ -613,4 +608,18 @@ end
 function Game:endGame()
 	self.gameOver = true
 	Leaderboard:addScore(Game:getScore())
+end
+
+function Game:getWorstTetromino()
+	local probabilities = {
+		[self.TetrominoType.I] = 50,
+		[self.TetrominoType.O] = 80,
+		[self.TetrominoType.T] = 120,
+		[self.TetrominoType.S] = 1000,
+		[self.TetrominoType.Z] = 1000,
+		[self.TetrominoType.J] = 250,
+		[self.TetrominoType.L] = 250,
+	}	
+	local selected = Utils:pickOne(probabilities)
+	return Game:newTetromino(selected)
 end

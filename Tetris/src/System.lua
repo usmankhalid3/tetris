@@ -1,24 +1,31 @@
+--[[
+	This class acts as the screen on which the game name, tetris board & high scores scores are shown
+--]]
 require("Globals")
 
 System = {
-	font = love.graphics.newFont(Globals.Path.FONT, 36)
+	font = love.graphics.newFont(Globals.Path.FONT, 36) -- font used for rendering text
 }
 
+-- Heading of the game
 function System:setHeading()
 	local heading = Globals.GAME_NAME
 	love.graphics.print(heading, 250, 25)
 end
 
+-- Initializes the system by setting the font and window title
 function System:init()
 	love.window.setTitle(Globals.GAME_NAME)
 	love.graphics.setFont(self.font)
 end
 
+-- Updates the user's score on the screen
 function System:updateScore()
 	local scoreLabel = Globals.SCORE_LABEL .. Game:getScore()
 	love.graphics.print(scoreLabel, 550, 150)
 end
 
+-- Shows the top X highest scores on the screen
 function System:showHighScores()
 	local y = 100
 	local scores = Leaderboard:getTopScores()

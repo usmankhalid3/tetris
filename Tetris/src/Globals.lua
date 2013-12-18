@@ -1,21 +1,22 @@
+--[[
+	This class contains the constant values in the game
+--]]
 
 Globals = {
 	GAME_NAME = "Crazy Tetris v0.1",
 	SCORE_LABEL = "Score: ",
-	SCREEN_WIDTH = 576,
-	SCREEN_HEIGHT = 480,
-	BOARD_WIDTH = 10,
-	BOARD_HEIGHT = 15,
-	TILE_SIZE = 32,
-	TETROMINO_SIZE = 4,
-	TOTAL_TETROMINO_TYPES = 7,
-	DESCENT_DELAY = 1,
-	KEYPRESS_DELAY = 0.1,
-	BOARD_OFFSET_X = 200,
-	BOARD_OFFSET_Y = 100,
-	LEADERBOARD_SIZE = 5,
+	BOARD_WIDTH = 10, -- width of the tetris board (in number of tiles)
+	BOARD_HEIGHT = 15,-- height of the tetris board (in number of tiles)
+	TILE_SIZE = 32, -- size of a single tetromino tile
+	TETROMINO_SIZE = 4, -- number of tiles in each tetromino
+	TOTAL_TETROMINO_TYPES = 7, -- total number of tetrominos
+	DESCENT_DELAY = 1, -- delay in seconds for a tetromino descend
+	KEYPRESS_DELAY = 0.1, -- delay in seconds before a key is responded to
+	BOARD_OFFSET_X = 200, -- offset of the tetris board from the left of the screen
+	BOARD_OFFSET_Y = 100, -- offset of the tetris board from the top of the screen
+	LEADERBOARD_SIZE = 5, -- total number of entries on the leaderboard 
 	
-	Colors = {
+	Colors = { -- colors of the tetrominos
 		"Grey",
 		"Red", 
 		"Orange", 
@@ -26,7 +27,7 @@ Globals = {
 		"Violet"
 	},
 	
-	Path = {
+	Path = {	-- various paths
 		IMAGES = "images/",
 		FONT = "fonts/DimboRegular.ttf",
 		GAME_DATA = "scores",

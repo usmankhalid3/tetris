@@ -1,65 +1,34 @@
+--[[
+	This class contains the overall logic of the tetris game
+--]]
+
 Game = {
-   TetrominoType = { 
-        --      ....
-        --      ####
-        --      ....
-        --      ....
-        I = 1,
-        --      ##..
-        --      ##..
-        --      ....
-        --      ....
-        O = 2,
-        --      .#..
-        --      ###.
-        --      ....
-        --      ....
-        T = 3,
-        --      .##.
-        --      ##..
-        --      ....
-        --      ....
+	
+	TetrominoType = { -- Enum for various types of tetrominos 
+		I = 1,
+		O = 2,
+		T = 3,
         S = 4,
-        --      ##..
-        --      .##.
-        --      ....
-        --      ....
         Z = 5,
-        --      #...
-        --      ###.
-        --      ....
-        --      ....
         J = 6,
-        --      ..#.
-        --      ###.
-        --      ....
-        --      ....
         L = 7
     },
---    TetrominoCenter = {
---    	[TetrominoType[I]] = 3,
---    	[TetrominoType[O]] = 4,
---    	[TetrominoType[T]] = 3,
---    	[TetrominoType[S]] = 4,
---    	[TetrominoType[Z]] = 3,
---    	[TetrominoType[J]] = 3,
---    	[TetrominoType[L]] = 4
---    },
-	board = {},
-	tetrominos = {},
-	cubes = {},
-	activeTetromino,
-	nextTetromino,
-	gameOver = false,
-	gamePaused = false,
-	descentTimer = 0,
-	keyTimerLeft = 0,
-	keyTimerRight = 0,
-	keyTimerUp = 0,
-	keyTimerDown = 0,
-	score = 0,
+	board = {}, -- this represents the tetris board
+	tetrominos = {}, -- this stores information about shape of all tetrominos
+	cubes = {}, -- block images
+	activeTetromino, -- the currently falling tetromino
+	nextTetromino, -- the upcoming tetromino
+	gameOver = false, -- tells whether the game is running
+	gamePaused = false, --  tells whether the game is paused
+	descentTimer = 0, -- the duration in seconds for each descent of the activeTetromino
+	keyTimerLeft = 0, -- the duration in seconds after which the "left" or "a" keys are responded to
+	keyTimerRight = 0, -- the duration in seconds after which the "right" or "d" keys are responded to
+	keyTimerUp = 0, -- the duration in seconds after which the "up" or " " keys are responded to
+	keyTimerDown = 0, -- the duration in seconds after which the "down" or "s" keys are responded to
+	score = 0, -- total score of the user
 }
 
+-- Resets the state of the game
 function Game:resetState()
 	math.randomseed(os.time())
 	self.board = {}
@@ -75,6 +44,7 @@ function Game:resetState()
 	self.score = 0
 end
 
+-- Initializes the member variables and loads the images
 function Game:init()
 	Game:resetState()
 	Game:loadImages()
@@ -84,6 +54,7 @@ function Game:init()
 	self.nextTetromino = Game:getWorstTetromino()
 end
 
+-- Loads the tetromino block images from disk
 function Game:loadImages()
 	for k,v in ipairs(Globals.Colors) do
 		local path = Globals.Path.IMAGES .. v .. ".png"
@@ -91,6 +62,7 @@ function Game:loadImages()
 	end	
 end
 
+-- Checks whether the currently falling tetromino can go any further down
 function Game:hasReachedDown()
 	local tetro = self.activeTetromino
 	if tetro["row"] + tetro["height"] > Globals.BOARD_HEIGHT then
@@ -113,6 +85,7 @@ function Game:hasReachedDown()
 	return false
 end
 
+-- Checks whether the currently falling block can go any further to the left
 function Game:hasReachedLeft()
 	local tetro = self.activeTetromino
 	if tetro["col"] < 2 then
@@ -134,6 +107,7 @@ function Game:hasReachedLeft()
 	return false
 end
 
+-- Checks whether the currently falling block can go any further to the right
 function Game:hasReachedRight()
 	local tetro = self.activeTetromino
 	if tetro["col"] + tetro["width"] > Globals.BOARD_WIDTH then
@@ -155,7 +129,8 @@ function Game:hasReachedRight()
 	return false
 end
 
-function Game:checkLegal(tetro)
+-- Checks whether the currently falling block is in a valid position
+function Game:hasValidPosition(tetro)
 	for i = 1, tetro["width"] do
 		for j = 1, tetro["height"] do
 			if tetro["tetro"][i][j] then
@@ -172,6 +147,7 @@ function Game:checkLegal(tetro)
 	return true
 end
 
+-- Fixes the tetromino that just landed to the tetris board
 function Game:addTetroToBoard()
 	local tetro = self.activeTetromino
 	
@@ -185,17 +161,19 @@ function Game:addTetroToBoard()
 	
 	self.activeTetromino = self.nextTetromino
 	
-	if Game:checkLegal(self.activeTetromino) == false then
+	if Game:hasValidPosition(self.activeTetromino) == false then
 		Game:endGame()
 	end
 	
 	self.nextTetromino = Game:getWorstTetromino()
 end
 
+-- Makes the active tetromino fall downward
 function Game:descendTetromino()
 	self.activeTetromino["row"] = self.activeTetromino["row"] + 1
 end
 
+-- Tries to rotate the active tetromino
 function Game:rotateTetromino()
 	local tetro = self.activeTetromino
 	-- No need to rotate the O-shape
@@ -245,12 +223,13 @@ function Game:rotateTetromino()
 		end
 	end
 	
-	if Game:checkLegal(newTetro) == true then
+	if Game:hasValidPosition(newTetro) == true then
 		self.activeTetromino = newTetro
 	end
 	 
 end
 
+-- Removes the rows that have been filled up and increases the score (if applicable)
 function Game:removeCompletedRows()
 	local completedRows = {}
 	local linesCompleted = 0
@@ -283,6 +262,7 @@ function Game:removeCompletedRows()
 	self.board = newBoard
 end
 
+-- Called every tick (called from love.update method)
 function Game:update(dt)
 	if self.gamePaused == true or self.gameOver == true then
 		return
@@ -348,6 +328,7 @@ function Game:update(dt)
 	end
 end
 
+-- Initializes the tetris board with the grey tiles
 function Game:createBoard()
 	local board = {}
 	for i = 1, Globals.BOARD_WIDTH do
@@ -359,6 +340,7 @@ function Game:createBoard()
 	return board
 end
 
+-- Initializes a matrix with a particular value
 function Game:setMatrix(matrix, height, width, value)
 	for i = 1, height do
 		matrix[i] = {}
@@ -368,6 +350,7 @@ function Game:setMatrix(matrix, height, width, value)
 	end
 end
 
+-- Creates various types of tetrominos
 function Game:createTetrominos()
 	for i = 1, Globals.TOTAL_TETROMINO_TYPES do
 		self.tetrominos[i] = {}
@@ -496,6 +479,7 @@ function Game:_debugPrintTetro(tetro)
 	end 
 end
 
+-- Creates and returns a tetromino of a specific type
 function Game:newTetromino(type)
 	local row = 1
 	local col = Globals.BOARD_WIDTH / 2;
@@ -539,11 +523,10 @@ function Game:newTetromino(type)
 		["type"] = type
 	}
 	
-	--print ("\n", newTetromino.height .. newTetromino.width)
-	
 	return newTetromino
 end
 
+-- Renders a tetromino on the screen
 function Game:renderTetromino(tetroToRender)
 	if tetroToRender == nil then
 		return
@@ -565,6 +548,7 @@ function Game:renderTetromino(tetroToRender)
 	 end
 end
 
+-- Renders the tetris board on the screen
 function Game:render()
 	for i = 1, Globals.BOARD_WIDTH do
 		for j = 1, Globals.BOARD_HEIGHT do
@@ -579,6 +563,7 @@ function Game:onKeyDown(key)
 
 end
 
+-- Pause/Unpause the game
 function Game:pauseGame()
 	if self.gamePaused == true then
 		self.gamePaused = false
@@ -587,29 +572,35 @@ function Game:pauseGame()
 	end
 end
 
+-- Captures the keyUp event (called from love.keyreleased)
 function Game:onKeyUp(key)
 	if key == "p" then
 		Game:pauseGame()
 	end
 end
 
+-- Returns the score of the current game
 function Game:getScore()
 	return self.score
 end
 
+-- Returns whether the game is over
 function Game:isOver()
 	return self.gameOver
 end
 
+-- Returns whether the game is paused
 function Game:isPaused()
 	return self.gamePaused
 end
 
+-- Ends the game and adds the score to the Leaderboard
 function Game:endGame()
 	self.gameOver = true
 	Leaderboard:addScore(Game:getScore())
 end
 
+-- Selects the worst tetromino based on a set of probabilities
 function Game:getWorstTetromino()
 	local probabilities = {
 		[self.TetrominoType.I] = 50,

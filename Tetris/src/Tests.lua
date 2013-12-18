@@ -1,3 +1,6 @@
+--[[
+	Contains unit tests for some functions
+--]]
 
 function testProbability()
 	local prob = {

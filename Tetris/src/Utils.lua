@@ -1,7 +1,12 @@
+--[[
+	A bunch of utilities packed together
+--]]
+
 Utils = {
 
 }
 
+-- Splits a string based on a delimeter
 function Utils:split(s, delimiter)
     result = {};
     for match in (s..delimiter):gmatch("(.-)"..delimiter) do
@@ -10,6 +15,7 @@ function Utils:split(s, delimiter)
     return result;
 end
 
+-- Wrapper for the getByProbability method
 function Utils:pickOne(probabilities)
 	local sum = 0
 	for k,v in ipairs(probabilities) do
@@ -18,6 +24,7 @@ function Utils:pickOne(probabilities)
 	return Utils:getByProbability(probabilities, sum)
 end
 
+-- Selects an element from a set based on a set of probabilities 
 function Utils:getByProbability(probabilities, totalProbability)
 	if totalProbability < 1 then
 		return nil
